@@ -3,7 +3,7 @@ from voiceover.sample import sample_guide_prompt,sample_content
 
 def generate_transcript(
     repo="mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
-    content=None,
+    content=sample_content,
     guide_prompt= sample_guide_prompt,
     verbose=True,
     max_tokens=10000,
@@ -39,9 +39,13 @@ def generate_transcript(
     
     return response
 
+def generate_chunked_transcript(**kwargs):
+    transcript = generate_transcript(**kwargs)
+    return transcript.split("\n\n")
 
 # Example usage
 if __name__ == "__main__":
     content = sample_content
-    response = generate_transcript(content=content)
-    print(response)
+    list_trans = generate_chunked_transcript(content=content)
+    print(list_trans)
+    print(len(list_trans))
