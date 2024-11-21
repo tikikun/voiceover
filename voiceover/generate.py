@@ -9,7 +9,6 @@ from f5_tts_mlx.cfm import F5TTS
 from f5_tts_mlx.utils import convert_char_to_pinyin
 from voiceover.transcript import generate_chunked_transcript
 import strip_markdown
-from sample import sample_guide_prompt
 
 # Constants
 SAMPLE_RATE = 24_000
@@ -26,9 +25,8 @@ def read_and_generate_chunked_transcript(file_path, **kwargs):
     return transcript_chunks
 
 
-def load_pretrained_model():
+def load_pretrained_model(model_name):
     """Loads the pre-trained model and applies quantization."""
-    model_name = "alandao/f5-tts-mlx-4bit"
     f5tts = F5TTS.from_pretrained(model_name)
     return f5tts
 
@@ -140,6 +138,10 @@ def main():
     parser.add_argument('--temp', type=float, default=0.,
                         help='Temperature value for randomness.')
 
+    # Additional parameter for pretrained model
+    parser.add_argument('--pretrained-model', type=str, default="alandao/f5-tts-mlx-4bit",
+                        help='Pre-trained model name.')
+
     args = parser.parse_args()
     
     # Pass additional arguments related to transcript generation
@@ -153,7 +155,7 @@ def main():
     }
     
     transcripts = read_and_generate_chunked_transcript(args.input_file, **kwargs)
-    f5tts = load_pretrained_model()
+    f5tts = load_pretrained_model(model_name=args.pretrained_model)
     audio, ref_audio_text = handle_reference_audio(args.ref_audio)
     final_wave = read_transcript_list(
         transcripts, args.output_dir, f5tts, audio, ref_audio_text,
