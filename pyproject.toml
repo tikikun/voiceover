@@ -19,7 +19,8 @@ dependencies = [
     "selenium==4.16.0",
     "tqdm==4.66.1",
     "webdriver_manager==4.0.1",
-    "Markdown==3.6"
+    "Markdown==3.6",
+    "strip_markdown"
 ]
 
 [project.scripts]
