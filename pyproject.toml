@@ -9,6 +9,15 @@ description = "A short description of your project"
 authors = [
     { name="Your Name", email="your.email@example.com" }
 ]
+
 dependencies = [
-    "f5-tts-mlx @ git+https://github.com/tikikun/f5-tts-mlx-quantized.git"
+    "f5-tts-mlx @ git+https://github.com/tikikun/f5-tts-mlx-quantized.git",
+    "mlx-lm",
+    "bs4==0.0.1",
+    "html2text==2020.1.16",
+    "requests==2.31.0",
+    "selenium==4.16.0",
+    "tqdm==4.66.1",
+    "webdriver_manager==4.0.1",
+    "Markdown==3.6"
 ]
