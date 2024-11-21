@@ -7,6 +7,7 @@ The VoiceOver CLI tool converts blog posts written in Markdown into a verbally r
 - [Installation](#installation)
 - [Usage](#usage)
   - [Basic Usage](#basic-usage)
+  - [Switching Between Models](#switching-between-models)
   - [Advanced Options](#advanced-options)
 - [Arguments](#arguments)
 - [Examples](#examples)
@@ -36,6 +37,22 @@ voiceover --input-file path/to/blog_post.md --output-dir ./outputs/
 ```
 
 This command reads the content of `blog_post.md`, rewrites it for verbal readability, uses a default reference audio, and saves the generated speech audio as `output.wav` in the specified output directory.
+
+### Switching Between Models
+
+You can switch between 4-bit and 8-bit models by specifying the appropriate pretrained model name:
+
+- **4-bit Model**:
+
+  ```bash
+  voiceover --input-file path/to/blog_post.md --pretrained-model alandao/f5-tts-mlx-4bit --output-dir ./outputs/
+  ```
+
+- **8-bit Model**:
+
+  ```bash
+  voiceover --input-file path/to/blog_post.md --pretrained-model alandao/f5-tts-mlx-8bit --output-dir ./outputs/
+  ```
 
 ### Advanced Options
 
@@ -81,7 +98,7 @@ voiceover --input-file path/to/blog_post.md --repo my-custom-repo --guide-prompt
 | `--max-tokens`         | int      | Maximum number of tokens for each chunked transcript.                       |
 | `--top-p`              | float    | Top p value for token selection during transcript generation.                 |
 | `--temp`               | float    | Temperature value controlling randomness during transcript generation.        |
-| `--pretrained-model`   | string   | Pre-trained TTS model name to load.                                         |
+| `--pretrained-model`   | string   | Pre-trained TTS model name to load. Choose between `alandao/f5-tts-mlx-4bit` and `alandao/f5-tts-mlx-8bit`.|
 
 ## Examples
 
@@ -89,6 +106,12 @@ voiceover --input-file path/to/blog_post.md --repo my-custom-repo --guide-prompt
 
   ```bash
   voiceover --input-file example_blog_post.md --output-dir results/
+  ```
+
+- **Using 8-bit Model**: Specify the 8-bit model for higher quality but potentially larger resource consumption.
+
+  ```bash
+  voiceover --input-file example_blog_post.md --pretrained-model alandao/f5-tts-mlx-8bit --output-dir results/
   ```
 
 - **Custom Reference Audio**: Use a specific WAV file as the reference audio.
