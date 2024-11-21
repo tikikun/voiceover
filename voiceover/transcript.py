@@ -36,7 +36,9 @@ def generate_transcript(
         top_p=top_p,
         temp=temp,
     )
-    
+    # Make sure to release resource
+    del model
+    response = response.replace("<|im_end|>","")
     return response
 
 def generate_chunked_transcript(**kwargs):
