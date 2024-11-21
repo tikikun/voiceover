@@ -9,6 +9,7 @@ from f5_tts_mlx.cfm import F5TTS
 from f5_tts_mlx.utils import convert_char_to_pinyin
 from voiceover.transcript import generate_chunked_transcript
 import strip_markdown
+
 # Constants
 SAMPLE_RATE = 24_000
 HOP_LENGTH = 256
@@ -59,7 +60,7 @@ def handle_reference_audio(ref_audio_path=None):
     return audio, ref_audio_text
 
 
-def read_transcript_list(transcripts, output_dir, f5tts, audio, ref_audio_text):
+def read_transcript_list(transcripts, output_dir, f5tts, audio, ref_audio_text, steps, method, speed, cfg_strength, sway_sampling_coef):
     """
     Reads transcripts, generates audio for each transcript,
     and returns the concatenated audio.
@@ -77,11 +78,11 @@ def read_transcript_list(transcripts, output_dir, f5tts, audio, ref_audio_text):
             mx.expand_dims(audio, axis=0),
             text=pinyin_text,
             duration=None,
-            steps=32,
-            method="euler",
-            speed=1,
-            cfg_strength=2.0,
-            sway_sampling_coef=-1.0,
+            steps=steps,
+            method=method,
+            speed=speed,
+            cfg_strength=cfg_strength,
+            sway_sampling_coef=sway_sampling_coef,
             seed=None,
         )
         # Trim the reference audio
@@ -100,23 +101,40 @@ def save_audio(final_wave, output_path):
     sf.write(output_path, np.array(final_wave), SAMPLE_RATE)
     print(f"Audio saved to {output_path}")
 
-
-def main(args):
-    transcripts = read_and_generate_chunked_transcript(args.input_file)
-    f5tts = load_pretrained_model()
-    audio, ref_audio_text = handle_reference_audio(args.ref_audio)
-    final_wave = read_transcript_list(transcripts, args.output_dir, f5tts, audio, ref_audio_text)
-    final_output_path = os.path.join(args.output_dir, "output.wav")
-    save_audio(final_wave, final_output_path)
-
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Generate audio from a transcript file.")
-    parser.add_argument('--input_file', '-i', type=str, help='Path to the input text file containing the transcript.')
+    
+    parser.add_argument('--input-file', '-i', type=str, required=True,
+                        help='Path to the input text file containing the transcript.')
     parser.add_argument('--ref-audio', '-ra', type=str, default=None, 
                         help='Optional path to the reference audio file. If not provided, uses a default test audio.')
     parser.add_argument('--output-dir', '-o', type=str, default='./',
                         help='Directory where the output audio will be saved.')
 
+    # Additional parameters
+    parser.add_argument('--steps', type=int, default=32,
+                        help='Number of sampling steps.')
+    parser.add_argument('--method', type=str, choices=['euler', 'midpoint'], default='euler',
+                        help='Sampling method.')
+    parser.add_argument('--speed', type=float, default=1.0,
+                        help='Speed factor for audio generation.')
+    parser.add_argument('--cfg-strength', type=float, default=2.0,
+                        help='Strength of configuration guidance.')
+    parser.add_argument('--sway-sampling-coef', type=float, default=-1.0,
+                        help='Coefficient for sway sampling.')
+
     args = parser.parse_args()
-    main(args)
+    
+    transcripts = read_and_generate_chunked_transcript(args.input_file)
+    f5tts = load_pretrained_model()
+    audio, ref_audio_text = handle_reference_audio(args.ref_audio)
+    final_wave = read_transcript_list(
+        transcripts, args.output_dir, f5tts, audio, ref_audio_text,
+        args.steps, args.method, args.speed, args.cfg_strength, args.sway_sampling_coef
+    )
+    final_output_path = os.path.join(args.output_dir, "output.wav")
+    save_audio(final_wave, final_output_path)
+
+
+if __name__ == "__main__":
+    main()
