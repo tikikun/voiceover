@@ -1,4 +1,5 @@
 # VoiceOver CLI Tool
+![Voiceover](./a-microphone.png "Voiceover")
 
 The VoiceOver CLI tool converts blog posts written in Markdown into a verbally readable and audible format, making them ideal for creating podcast-like content. You can easily generate high-quality speech audio from your Substack blog posts.
 
