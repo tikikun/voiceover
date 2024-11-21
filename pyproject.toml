@@ -3,11 +3,11 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "your_project_name"
+name = "voiceover"
 version = "0.1.0"
-description = "A short description of your project"
+description = "Create AI generated comprehensive voice over for your blog post, locally!"
 authors = [
-    { name="Your Name", email="your.email@example.com" }
+    { name="Alan Dao", email="contact@daogiatuan.com" }
 ]
 
 dependencies = [
