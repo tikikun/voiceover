@@ -9,7 +9,7 @@ from f5_tts_mlx.cfm import F5TTS
 from f5_tts_mlx.utils import convert_char_to_pinyin
 from voiceover.transcript import generate_chunked_transcript
 import strip_markdown
-
+from voiceover.sample import sample_guide_prompt
 # Constants
 SAMPLE_RATE = 24_000
 HOP_LENGTH = 256

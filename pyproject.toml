@@ -21,3 +21,6 @@ dependencies = [
     "webdriver_manager==4.0.1",
     "Markdown==3.6"
 ]
+
+[project.scripts]
+voiceover = "voiceover.generate:main"
