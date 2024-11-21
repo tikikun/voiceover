@@ -9,6 +9,7 @@ from f5_tts_mlx.cfm import F5TTS
 from f5_tts_mlx.utils import convert_char_to_pinyin
 from voiceover.transcript import generate_chunked_transcript
 import strip_markdown
+from sample import sample_guide_prompt
 
 # Constants
 SAMPLE_RATE = 24_000
@@ -17,11 +18,11 @@ FRAMES_PER_SEC = SAMPLE_RATE / HOP_LENGTH
 TARGET_RMS = 0.1
 
 
-def read_and_generate_chunked_transcript(file_path):
+def read_and_generate_chunked_transcript(file_path, **kwargs):
     """Reads and splits the input text file."""
     with open(file_path, 'r', encoding='utf-8') as file:
         file_content = strip_markdown.strip_markdown(file.read())
-    transcript_chunks = generate_chunked_transcript(content=file_content)
+    transcript_chunks = generate_chunked_transcript(content=file_content, **kwargs)
     return transcript_chunks
 
 
@@ -101,9 +102,11 @@ def save_audio(final_wave, output_path):
     sf.write(output_path, np.array(final_wave), SAMPLE_RATE)
     print(f"Audio saved to {output_path}")
 
+
 def main():
     parser = argparse.ArgumentParser(description="Generate audio from a transcript file.")
     
+    # Required arguments
     parser.add_argument('--input-file', '-i', type=str, required=True,
                         help='Path to the input text file containing the transcript.')
     parser.add_argument('--ref-audio', '-ra', type=str, default=None, 
@@ -111,7 +114,7 @@ def main():
     parser.add_argument('--output-dir', '-o', type=str, default='./',
                         help='Directory where the output audio will be saved.')
 
-    # Additional parameters
+    # Additional parameters for audio generation
     parser.add_argument('--steps', type=int, default=32,
                         help='Number of sampling steps.')
     parser.add_argument('--method', type=str, choices=['euler', 'midpoint'], default='euler',
@@ -123,9 +126,33 @@ def main():
     parser.add_argument('--sway-sampling-coef', type=float, default=-1.0,
                         help='Coefficient for sway sampling.')
 
+    # Additional parameters for generating transcripts
+    parser.add_argument('--repo', type=str, default="mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
+                        help='Model repository name.')
+    parser.add_argument('--guide-prompt', type=str, default=sample_guide_prompt,
+                        help='Guide prompt for model generation.')
+    parser.add_argument('--verbose', action='store_true',
+                        help='Enable verbose mode.')
+    parser.add_argument('--max-tokens', type=int, default=10000,
+                        help='Maximum number of tokens.')
+    parser.add_argument('--top-p', type=float, default=0.8,
+                        help='Top p value for token selection.')
+    parser.add_argument('--temp', type=float, default=0.,
+                        help='Temperature value for randomness.')
+
     args = parser.parse_args()
     
-    transcripts = read_and_generate_chunked_transcript(args.input_file)
+    # Pass additional arguments related to transcript generation
+    kwargs = {
+        'repo': args.repo,
+        'guide_prompt': args.guide_prompt,
+        'verbose': args.verbose,
+        'max_tokens': args.max_tokens,
+        'top_p': args.top_p,
+        'temp': args.temp,
+    }
+    
+    transcripts = read_and_generate_chunked_transcript(args.input_file, **kwargs)
     f5tts = load_pretrained_model()
     audio, ref_audio_text = handle_reference_audio(args.ref_audio)
     final_wave = read_transcript_list(
