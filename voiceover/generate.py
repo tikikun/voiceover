@@ -121,7 +121,7 @@ def main():
                         help='Number of sampling steps.')
     parser.add_argument('--method', type=str, choices=['euler', 'midpoint'], default='euler',
                         help='Sampling method.')
-    parser.add_argument('--speed', type=float, default=1.0,
+    parser.add_argument('--speed', type=float, default=0.8,
                         help='Speed factor for audio generation.')
     parser.add_argument('--cfg-strength', type=float, default=2.0,
                         help='Strength of configuration guidance.')
