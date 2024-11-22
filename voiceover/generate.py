@@ -129,7 +129,7 @@ def main():
                         help='Model repository name.')
     parser.add_argument('--guide-prompt', type=str, default=sample_guide_prompt,
                         help='Guide prompt for model generation.')
-    parser.add_argument('--verbose', action='store_true',
+    parser.add_argument('--verbose', action='store_true', default= True,
                         help='Enable verbose mode.')
     parser.add_argument('--max-tokens', type=int, default=10000,
                         help='Maximum number of tokens.')
