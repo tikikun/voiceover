@@ -111,7 +111,7 @@ def main():
                         help='Path to the input text file containing the transcript.')
     parser.add_argument('--ref-audio', '-ra', type=str, default=None, 
                         help='Optional path to the reference audio file. If not provided, uses a default test audio.')
-    parser.add_argument('--ref-text', '-rt', type=str, default=None,
+    parser.add_argument('--ref-text', '-rt', type=str, default="Some call me nature, others call me mother nature.",
                         help='Reference text corresponding to the reference audio.')
     parser.add_argument('--output-dir', '-o', type=str, default='./',
                         help='Directory where the output audio will be saved.')
