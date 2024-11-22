@@ -10,6 +10,7 @@ from f5_tts_mlx.utils import convert_char_to_pinyin
 from voiceover.transcript import generate_chunked_transcript
 import strip_markdown
 from voiceover.sample import sample_guide_prompt
+
 # Constants
 SAMPLE_RATE = 24_000
 HOP_LENGTH = 256
@@ -31,7 +32,7 @@ def load_pretrained_model(model_name):
     return f5tts
 
 
-def handle_reference_audio(ref_audio_path=None):
+def handle_reference_audio(ref_audio_path=None, ref_text=None):
     """Handles reference audio loading."""
     if ref_audio_path is None:
         data = pkgutil.get_data("f5_tts_mlx", "tests/test_en_1_ref_short.wav")
@@ -41,7 +42,8 @@ def handle_reference_audio(ref_audio_path=None):
             f.write(data)
         
         audio, sr = sf.read(tmp_ref_audio_file)
-        ref_audio_text = "Some call me nature, others call me mother nature."
+        if ref_text is None:
+            raise ValueError("Reference text must be provided when using default reference audio.")
     else:
         audio, sr = sf.read(ref_audio_path)
         if sr != SAMPLE_RATE:
@@ -56,7 +58,7 @@ def handle_reference_audio(ref_audio_path=None):
     if rms < TARGET_RMS:
         audio = audio * TARGET_RMS / rms
 
-    return audio, ref_audio_text
+    return audio, ref_text
 
 
 def read_transcript_list(transcripts, output_dir, f5tts, audio, ref_audio_text, steps, method, speed, cfg_strength, sway_sampling_coef):
@@ -109,6 +111,8 @@ def main():
                         help='Path to the input text file containing the transcript.')
     parser.add_argument('--ref-audio', '-ra', type=str, default=None, 
                         help='Optional path to the reference audio file. If not provided, uses a default test audio.')
+    parser.add_argument('--ref-text', '-rt', type=str, default=None,
+                        help='Reference text corresponding to the reference audio.')
     parser.add_argument('--output-dir', '-o', type=str, default='./',
                         help='Directory where the output audio will be saved.')
 
@@ -129,7 +133,7 @@ def main():
                         help='Model repository name.')
     parser.add_argument('--guide-prompt', type=str, default=sample_guide_prompt,
                         help='Guide prompt for model generation.')
-    parser.add_argument('--verbose', action='store_true', default= True,
+    parser.add_argument('--verbose', action='store_true', default=False,
                         help='Enable verbose mode.')
     parser.add_argument('--max-tokens', type=int, default=10000,
                         help='Maximum number of tokens.')
@@ -156,7 +160,7 @@ def main():
     
     transcripts = read_and_generate_chunked_transcript(args.input_file, **kwargs)
     f5tts = load_pretrained_model(model_name=args.pretrained_model)
-    audio, ref_audio_text = handle_reference_audio(args.ref_audio)
+    audio, ref_audio_text = handle_reference_audio(ref_audio_path=args.ref_audio, ref_text=args.ref_text)
     final_wave = read_transcript_list(
         transcripts, args.output_dir, f5tts, audio, ref_audio_text,
         args.steps, args.method, args.speed, args.cfg_strength, args.sway_sampling_coef
