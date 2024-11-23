@@ -146,6 +146,8 @@ def main():
     parser.add_argument('--pretrained-model', type=str, default="alandao/f5-tts-mlx-4bit",
                         help='Pre-trained model name.')
 
+    parser.add_argument('--raw-mode', action="store_true", default=False,
+                        help='Pre-trained model name.')
     args = parser.parse_args()
     
     # Pass additional arguments related to transcript generation
@@ -158,7 +160,12 @@ def main():
         'temp': args.temp,
     }
     
-    transcripts = read_and_generate_chunked_transcript(args.input_file, **kwargs)
+    if args.raw_mode is False:
+        transcripts = read_and_generate_chunked_transcript(args.input_file, **kwargs)
+    else:
+        with open(args.input_file) as file:
+            transcripts = file.read().split("\n\n")
+        print("Directly read file and will generate",transcripts)
     f5tts = load_pretrained_model(model_name=args.pretrained_model)
     audio, ref_audio_text = handle_reference_audio(ref_audio_path=args.ref_audio, ref_text=args.ref_text)
     final_wave = read_transcript_list(
@@ -167,7 +174,7 @@ def main():
     )
     final_output_path = os.path.join(args.output_dir, "output.wav")
     save_audio(final_wave, final_output_path)
-
-
+    
+    
 if __name__ == "__main__":
     main()
